@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "71753084250",
+    "project_id": "yaar-motors",
+    "storage_bucket": "yaar-motors.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:71753084250:android:9ec6fece39453a8720d763",
+        "android_client_info": {
+          "package_name": "com.mycompany.CounterApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFTNs5GgVjfL2_tsgY2ENlC7uDLRAey_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

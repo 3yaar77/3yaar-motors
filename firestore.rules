@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isOwnerId(ownerId) { return isSignedIn() && request.auth.uid == ownerId; }
+
+    // Users: private per user document
+    match /users/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.uid;
+      allow update, delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Listings: public read, owners write
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && isOwnerId(resource.data.ownerId);
+    }
+
+    // Plates: public read, owners write
+    match /plates/{plateId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && isOwnerId(resource.data.ownerId);
+    }
+
+    // Notifications: user-specific read, server or client creates
+    match /notifications/{noteId} {
+      allow read: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow create: if isSignedIn();
+      allow update, delete: if false; // immutable from client
+    }
+
+    // Reels: public read, owners write
+    match /reels/{reelId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && isOwnerId(resource.data.ownerId);
+    }
+
+    // Conversations and messages (basic pattern)
+    match /conversations/{convId} {
+      allow read, write: if isSignedIn() && (resource.data.participants.hasAll([request.auth.uid]) || request.resource.data.participants.hasAll([request.auth.uid]));
+      match /messages/{messageId} {
+        allow read, write: if isSignedIn();
+      }
+    }
+
+    // Deny everything else by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
